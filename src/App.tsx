@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Counter } from "./Counter";
+import { CollectionSelector } from "./CollectionSelector";
+import { CollectionManager } from "./CollectionManager";
 import "./index.css";
 
 interface CounterData {
@@ -10,13 +12,67 @@ interface CounterData {
   maxValue?: number;
 }
 
+interface Collection {
+  id: string;
+  name: string;
+  createdAt: number;
+  lastModified: number;
+  counters: CounterData[];
+}
+
+interface AppSettings {
+  lastActiveCollectionId: string | null;
+}
+
 export function App() {
-  const [counters, setCounters] = useState<CounterData[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCollectionManager, setShowCollectionManager] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newMaxValue, setNewMaxValue] = useState("");
   const [newDefaultValue, setNewDefaultValue] = useState("0");
   const [isLoading, setIsLoading] = useState(true);
+
+  const activeCollection = collections.find(c => c.id === activeCollectionId);
+  const counters = activeCollection?.counters || [];
+
+  // Collection utility functions
+  const createCollection = (name: string, initialCounters: CounterData[] = []): Collection => {
+    const now = Date.now();
+    return {
+      id: now.toString(),
+      name: name.trim(),
+      createdAt: now,
+      lastModified: now,
+      counters: initialCounters,
+    };
+  };
+
+  const updateActiveCollection = (updatedCounters: CounterData[]) => {
+    if (!activeCollectionId) return;
+    
+    setCollections(prevCollections =>
+      prevCollections.map(collection =>
+        collection.id === activeCollectionId
+          ? { ...collection, counters: updatedCounters, lastModified: Date.now() }
+          : collection
+      )
+    );
+  };
+
+  const switchToCollection = (collectionId: string) => {
+    setActiveCollectionId(collectionId);
+    setShowAddForm(false);
+    setShowCollectionManager(false);
+  };
+
+  const duplicateCollection = (sourceCollection: Collection, newName: string): Collection => {
+    return createCollection(newName, sourceCollection.counters.map(counter => ({
+      ...counter,
+      id: Date.now() + Math.random().toString(),
+    })));
+  };
 
   const isValidCounterData = (data: any): data is CounterData => {
     return (
@@ -29,44 +85,97 @@ export function App() {
     );
   };
 
+  // Migration and loading logic
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("game-counters");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const validCounters = parsed.filter(isValidCounterData);
-          if (validCounters.length > 0) {
-            setCounters(validCounters);
+      // Try to load collections first
+      const savedCollections = localStorage.getItem("collections-data");
+      const savedSettings = localStorage.getItem("app-settings");
+      
+      if (savedCollections) {
+        // Load existing collections
+        const parsedCollections = JSON.parse(savedCollections);
+        if (Array.isArray(parsedCollections)) {
+          setCollections(parsedCollections);
+          
+          // Load last active collection
+          if (savedSettings) {
+            const settings: AppSettings = JSON.parse(savedSettings);
+            const lastActiveExists = parsedCollections.find(c => c.id === settings.lastActiveCollectionId);
+            if (lastActiveExists) {
+              setActiveCollectionId(settings.lastActiveCollectionId);
+            } else if (parsedCollections.length > 0) {
+              setActiveCollectionId(parsedCollections[0].id);
+            }
+          } else if (parsedCollections.length > 0) {
+            setActiveCollectionId(parsedCollections[0].id);
           }
-          if (validCounters.length !== parsed.length) {
-            console.warn(
-              `Filtered out ${parsed.length - validCounters.length} invalid counter(s) from saved data`
-            );
+        }
+      } else {
+        // Migration from old format
+        const oldCounters = localStorage.getItem("game-counters");
+        if (oldCounters) {
+          const parsed = JSON.parse(oldCounters);
+          if (Array.isArray(parsed)) {
+            const validCounters = parsed.filter(isValidCounterData);
+            const defaultCollection = createCollection("My Counters", validCounters);
+            
+            setCollections([defaultCollection]);
+            setActiveCollectionId(defaultCollection.id);
+            
+            // Clean up old storage
+            localStorage.removeItem("game-counters");
+            
+            console.log("Migrated counters to collections format");
           }
+        } else {
+          // Create default collection for new users
+          const defaultCollection = createCollection("My Counters");
+          setCollections([defaultCollection]);
+          setActiveCollectionId(defaultCollection.id);
         }
       }
     } catch (error) {
-      console.error("Failed to load counters from localStorage:", error);
-      localStorage.removeItem("game-counters");
+      console.error("Failed to load collections:", error);
+      // Fallback: create default collection
+      const defaultCollection = createCollection("My Counters");
+      setCollections([defaultCollection]);
+      setActiveCollectionId(defaultCollection.id);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  // Save collections to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem("game-counters", JSON.stringify(counters));
-    } catch (error) {
-      console.error("Failed to save counters to localStorage:", error);
-      if (error instanceof DOMException && error.name === "QuotaExceededError") {
-        alert("Storage quota exceeded. Please remove some counters to continue saving data.");
+    if (collections.length > 0) {
+      try {
+        localStorage.setItem("collections-data", JSON.stringify(collections));
+      } catch (error) {
+        console.error("Failed to save collections:", error);
+        if (error instanceof DOMException && error.name === "QuotaExceededError") {
+          alert("Storage quota exceeded. Please remove some collections or counters.");
+        }
       }
     }
-  }, [counters]);
+  }, [collections]);
+
+  // Save active collection setting
+  useEffect(() => {
+    if (activeCollectionId) {
+      try {
+        const settings: AppSettings = {
+          lastActiveCollectionId: activeCollectionId,
+        };
+        localStorage.setItem("app-settings", JSON.stringify(settings));
+      } catch (error) {
+        console.error("Failed to save app settings:", error);
+      }
+    }
+  }, [activeCollectionId]);
 
   const addCounter = () => {
-    if (newLabel.trim()) {
+    if (newLabel.trim() && activeCollectionId) {
       const maxVal = newMaxValue ? parseInt(newMaxValue) : undefined;
       const defaultVal = parseInt(newDefaultValue) || 0;
       
@@ -77,7 +186,10 @@ export function App() {
         initialValue: defaultVal,
         maxValue: maxVal,
       };
-      setCounters([...counters, newCounter]);
+      
+      const updatedCounters = [...counters, newCounter];
+      updateActiveCollection(updatedCounters);
+      
       setNewLabel("");
       setNewMaxValue("");
       setNewDefaultValue("0");
@@ -86,24 +198,62 @@ export function App() {
   };
 
   const removeCounter = (id: string) => {
-    setCounters(counters.filter((counter) => counter.id !== id));
+    const updatedCounters = counters.filter((counter) => counter.id !== id);
+    updateActiveCollection(updatedCounters);
   };
 
   const updateCounter = (id: string, value: number) => {
-    setCounters(
-      counters.map((counter) =>
-        counter.id === id ? { ...counter, value } : counter
-      )
+    const updatedCounters = counters.map((counter) =>
+      counter.id === id ? { ...counter, value } : counter
     );
+    updateActiveCollection(updatedCounters);
   };
 
   const resetAllCounters = () => {
-    setCounters(
-      counters.map((counter) => ({
-        ...counter,
-        value: counter.initialValue,
-      }))
-    );
+    const updatedCounters = counters.map((counter) => ({
+      ...counter,
+      value: counter.initialValue,
+    }));
+    updateActiveCollection(updatedCounters);
+  };
+
+  // Collection management functions
+  const handleCreateCollection = (name: string, duplicateFromId?: string) => {
+    let newCollection: Collection;
+    
+    if (duplicateFromId) {
+      const sourceCollection = collections.find(c => c.id === duplicateFromId);
+      if (sourceCollection) {
+        newCollection = duplicateCollection(sourceCollection, name);
+      } else {
+        newCollection = createCollection(name);
+      }
+    } else {
+      newCollection = createCollection(name);
+    }
+    
+    setCollections([...collections, newCollection]);
+    switchToCollection(newCollection.id);
+  };
+
+  const handleDeleteCollection = (collectionId: string) => {
+    if (collections.length <= 1) return;
+    
+    const updatedCollections = collections.filter(c => c.id !== collectionId);
+    setCollections(updatedCollections);
+    
+    // If we deleted the active collection, switch to the first available
+    if (collectionId === activeCollectionId) {
+      setActiveCollectionId(updatedCollections[0].id);
+    }
+  };
+
+  const handleRenameCollection = (collectionId: string, newName: string) => {
+    setCollections(collections.map(collection =>
+      collection.id === collectionId
+        ? { ...collection, name: newName, lastModified: Date.now() }
+        : collection
+    ));
   };
 
   if (isLoading) {
@@ -120,7 +270,15 @@ export function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Game Counters</h1>
+        <div className="header-main">
+          <h1>Game Counters</h1>
+          <CollectionSelector
+            collections={collections}
+            activeCollectionId={activeCollectionId}
+            onCollectionSelect={switchToCollection}
+            onManageCollections={() => setShowCollectionManager(true)}
+          />
+        </div>
         <div className="header-buttons">
           <button
             type="button"
@@ -222,6 +380,7 @@ export function App() {
             key={counter.id}
             id={counter.id}
             label={counter.label}
+            value={counter.value}
             initialValue={counter.initialValue}
             maxValue={counter.maxValue}
             onRemove={removeCounter}
@@ -229,6 +388,18 @@ export function App() {
           />
         ))}
       </div>
+
+      {showCollectionManager && (
+        <CollectionManager
+          collections={collections}
+          activeCollectionId={activeCollectionId}
+          onClose={() => setShowCollectionManager(false)}
+          onCreateCollection={handleCreateCollection}
+          onDeleteCollection={handleDeleteCollection}
+          onRenameCollection={handleRenameCollection}
+          onSwitchCollection={switchToCollection}
+        />
+      )}
     </div>
   );
 }

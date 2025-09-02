@@ -1,8 +1,8 @@
-import { useState } from "react";
 
 interface CounterProps {
   id: string;
   label: string;
+  value: number;
   initialValue?: number;
   maxValue?: number;
   onRemove: (id: string) => void;
@@ -12,17 +12,16 @@ interface CounterProps {
 export function Counter({
   id,
   label,
+  value,
   initialValue = 0,
   maxValue,
   onRemove,
   onUpdate,
 }: CounterProps) {
-  const [value, setValue] = useState(initialValue);
 
   const increment = () => {
     if (maxValue === undefined || value < maxValue) {
       const newValue = value + 1;
-      setValue(newValue);
       onUpdate(id, newValue);
     }
   };
@@ -30,13 +29,11 @@ export function Counter({
   const decrement = () => {
     if (value > 0) {
       const newValue = value - 1;
-      setValue(newValue);
       onUpdate(id, newValue);
     }
   };
 
   const reset = () => {
-    setValue(initialValue);
     onUpdate(id, initialValue);
   };
 
