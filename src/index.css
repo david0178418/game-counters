@@ -1114,39 +1114,12 @@ body {
   user-select: none;
 }
 
-/* Maximize/Minimize Button Styles */
-.maximize-button {
-  background: var(--surface);
-  color: var(--text-primary);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 0.75rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-height: 48px;
-  min-width: 48px;
-  touch-action: manipulation;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Floating Action Button Styles */
 
-.maximize-button:hover {
-  background: var(--primary-color);
-  color: var(--background);
-  border-color: var(--primary-color);
-  transform: translateY(-1px);
-}
-
-.maximize-button:active {
-  transform: translateY(0);
-}
-
+.floating-maximize-button,
 .floating-minimize-button {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   right: 20px;
   background: var(--surface);
   color: var(--text-primary);
@@ -1154,7 +1127,6 @@ body {
   border-radius: 50%;
   width: 56px;
   height: 56px;
-  font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s;
   z-index: 1000;
@@ -1165,6 +1137,7 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+.floating-maximize-button:hover,
 .floating-minimize-button:hover {
   background: var(--primary-color);
   color: var(--background);
@@ -1172,11 +1145,13 @@ body {
   transform: scale(1.1);
 }
 
+.floating-maximize-button:active,
 .floating-minimize-button:active {
   transform: scale(0.95);
 }
 
-.fullscreen-exit-icon {
+.fullscreen-exit-icon,
+.fullscreen-enter-icon {
   pointer-events: none;
   flex-shrink: 0;
 }
@@ -1270,12 +1245,12 @@ body {
     left: calc(100% - 22px);
   }
 
+  .floating-maximize-button,
   .floating-minimize-button {
-    top: 16px;
+    bottom: 16px;
     right: 16px;
     width: 52px;
     height: 52px;
-    font-size: 1.3rem;
   }
 
   .app.maximized .counters-grid {
@@ -1303,12 +1278,6 @@ body {
     font-size: 0.9rem;
   }
 
-  .maximize-button {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0.6rem;
-    font-size: 1.1rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
