@@ -104,3 +104,32 @@ bun --hot ./index.ts
 ```
 
 For more information, read the Bun API docs in `node_modules/bun-types/docs/**.md`.
+
+# Code Quality & Development Guidelines
+
+## TypeScript Standards
+- **ALWAYS use strict typing** - Define proper interfaces and types for all data structures
+- **NEVER use `any` type** - Create specific types even if it takes more effort
+- **AVOID type casting** - Fix the underlying type issues instead of casting around them
+- **Use union types** instead of loose typing (e.g., `'light' | 'dark'` not `string`)
+- **Define component props interfaces** with proper typing for all React components
+
+## Development Philosophy
+- **NO backward compatibility by default** - Always implement the best solution for the current need
+- **Break things if necessary** - Don't compromise good design for legacy support
+- **Only maintain compatibility when explicitly requested** by the user
+- **Migrate data structures** when implementing better designs
+- **Clean up deprecated code** during refactors
+
+## Architecture Principles
+- **Single source of truth** - Avoid duplicate state management
+- **Proper separation of concerns** - Keep components focused and composable  
+- **Data validation** - Validate data structures at boundaries (localStorage, props, APIs)
+- **Error boundaries** - Handle edge cases and provide graceful degradation
+- **Performance first** - Optimize for mobile and battery life
+
+## Implementation Guidelines
+- Do what has been asked; nothing more, nothing less
+- NEVER create files unless they're absolutely necessary for achieving your goal
+- ALWAYS prefer editing an existing file to creating a new one
+- NEVER proactively create documentation files (*.md) or README files unless explicitly requested
