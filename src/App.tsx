@@ -16,20 +16,53 @@ export function App() {
   const [newLabel, setNewLabel] = useState("");
   const [newMaxValue, setNewMaxValue] = useState("");
   const [newDefaultValue, setNewDefaultValue] = useState("0");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const isValidCounterData = (data: any): data is CounterData => {
+    return (
+      data &&
+      typeof data.id === "string" &&
+      typeof data.label === "string" &&
+      typeof data.value === "number" &&
+      typeof data.initialValue === "number" &&
+      (data.maxValue === undefined || typeof data.maxValue === "number")
+    );
+  };
 
   useEffect(() => {
-    const saved = localStorage.getItem("game-counters");
-    if (saved) {
-      try {
-        setCounters(JSON.parse(saved));
-      } catch (error) {
-        console.error("Failed to load counters from localStorage:", error);
+    try {
+      const saved = localStorage.getItem("game-counters");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const validCounters = parsed.filter(isValidCounterData);
+          if (validCounters.length > 0) {
+            setCounters(validCounters);
+          }
+          if (validCounters.length !== parsed.length) {
+            console.warn(
+              `Filtered out ${parsed.length - validCounters.length} invalid counter(s) from saved data`
+            );
+          }
+        }
       }
+    } catch (error) {
+      console.error("Failed to load counters from localStorage:", error);
+      localStorage.removeItem("game-counters");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("game-counters", JSON.stringify(counters));
+    try {
+      localStorage.setItem("game-counters", JSON.stringify(counters));
+    } catch (error) {
+      console.error("Failed to save counters to localStorage:", error);
+      if (error instanceof DOMException && error.name === "QuotaExceededError") {
+        alert("Storage quota exceeded. Please remove some counters to continue saving data.");
+      }
+    }
   }, [counters]);
 
   const addCounter = () => {
@@ -72,6 +105,17 @@ export function App() {
       }))
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="app">
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading counters...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
