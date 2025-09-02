@@ -15,6 +15,7 @@ export function App() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newMaxValue, setNewMaxValue] = useState("");
+  const [newDefaultValue, setNewDefaultValue] = useState("0");
 
   useEffect(() => {
     const saved = localStorage.getItem("game-counters");
@@ -33,16 +34,20 @@ export function App() {
 
   const addCounter = () => {
     if (newLabel.trim()) {
+      const maxVal = newMaxValue ? parseInt(newMaxValue) : undefined;
+      const defaultVal = parseInt(newDefaultValue) || 0;
+      
       const newCounter: CounterData = {
         id: Date.now().toString(),
         label: newLabel.trim(),
-        value: 0,
-        initialValue: 0,
-        maxValue: newMaxValue ? parseInt(newMaxValue) : undefined,
+        value: defaultVal,
+        initialValue: defaultVal,
+        maxValue: maxVal,
       };
       setCounters([...counters, newCounter]);
       setNewLabel("");
       setNewMaxValue("");
+      setNewDefaultValue("0");
       setShowAddForm(false);
     }
   };
@@ -109,6 +114,38 @@ export function App() {
             className="counter-max-input"
             min="1"
           />
+          <div className="default-value-section">
+            <label className="input-label">Default value:</label>
+            <div className="default-value-controls">
+              <input
+                type="number"
+                placeholder="0"
+                value={newDefaultValue}
+                onChange={(e) => setNewDefaultValue(e.target.value)}
+                className="counter-default-input"
+                min="0"
+                max={newMaxValue || undefined}
+              />
+              <div className="quick-set-buttons">
+                <button
+                  type="button"
+                  onClick={() => setNewDefaultValue("0")}
+                  className="quick-set-button"
+                >
+                  0
+                </button>
+                {newMaxValue && (
+                  <button
+                    type="button"
+                    onClick={() => setNewDefaultValue(newMaxValue)}
+                    className="quick-set-button"
+                  >
+                    Max ({newMaxValue})
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
           <div className="form-buttons">
             <button
               type="button"
