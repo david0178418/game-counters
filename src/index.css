@@ -1176,6 +1176,11 @@ body {
   transform: scale(0.95);
 }
 
+.fullscreen-exit-icon {
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
 /* Maximized Mode Styles */
 .app.maximized {
   padding: 0;
