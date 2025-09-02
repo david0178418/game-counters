@@ -297,6 +297,17 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .loading-state p {
   margin: 0;
   font-size: 1.1rem;
@@ -610,7 +621,7 @@ body {
   transition: transform 0.2s;
 }
 
-.collection-dropdown:hover .collection-arrow {
+.collection-arrow.open {
   transform: rotate(180deg);
 }
 
@@ -625,17 +636,7 @@ body {
   margin-top: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 100;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.2s;
-}
-
-.collection-dropdown:hover .collection-menu,
-.collection-dropdown:focus-within .collection-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+  animation: dropdownFadeIn 0.2s ease-out;
 }
 
 .collection-list {
