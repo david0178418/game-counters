@@ -198,14 +198,57 @@ export function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  // Handle fullscreen change events (e.g., user presses Escape key)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!document.fullscreenElement;
+      
+      // If we're no longer in fullscreen but our state says we're maximized,
+      // update our state to match
+      if (!isCurrentlyFullscreen && isMaximized) {
+        setIsMaximized(false);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [isMaximized]);
+
   // Theme toggle function
   const toggleTheme = () => {
     setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
   };
 
   // Maximize/minimize toggle function
-  const toggleMaximized = () => {
-    setIsMaximized(prev => !prev);
+  const toggleMaximized = async () => {
+    const newMaximizedState = !isMaximized;
+    
+    if (newMaximizedState) {
+      // Entering maximized mode - request fullscreen
+      try {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch (error) {
+        console.warn('Fullscreen request failed:', error);
+        // Continue with maximized mode even if fullscreen fails
+      }
+    } else {
+      // Exiting maximized mode - exit fullscreen
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+      } catch (error) {
+        console.warn('Exit fullscreen failed:', error);
+        // Continue with normal mode even if exit fullscreen fails
+      }
+    }
+    
+    setIsMaximized(newMaximizedState);
   };
 
   const addCounter = () => {
