@@ -639,8 +639,17 @@ body {
 }
 
 .collection-item.active {
-  background: var(--primary-color);
-  color: var(--background);
+  background: var(--success);
+  color: black;
+}
+
+.collection-item.active .collection-item-name {
+  color: black;
+}
+
+.collection-item.active .collection-item-count {
+  color: black;
+  opacity: 0.8;
 }
 
 .collection-item-main {
