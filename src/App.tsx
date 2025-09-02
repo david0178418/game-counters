@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Counter } from "./Counter";
 import { CollectionSelector } from "./CollectionSelector";
 import { CollectionManager } from "./CollectionManager";
+import { ThemeToggle } from "./ThemeToggle";
 import "./index.css";
 
 interface CounterData {
@@ -22,6 +23,7 @@ interface Collection {
 
 interface AppSettings {
   lastActiveCollectionId: string | null;
+  theme: 'light' | 'dark';
 }
 
 export function App() {
@@ -33,6 +35,7 @@ export function App() {
   const [newMaxValue, setNewMaxValue] = useState("");
   const [newDefaultValue, setNewDefaultValue] = useState("0");
   const [isLoading, setIsLoading] = useState(true);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   const activeCollection = collections.find(c => c.id === activeCollectionId);
   const counters = activeCollection?.counters || [];
@@ -98,14 +101,21 @@ export function App() {
         if (Array.isArray(parsedCollections)) {
           setCollections(parsedCollections);
           
-          // Load last active collection
+          // Load last active collection and theme
           if (savedSettings) {
             const settings: AppSettings = JSON.parse(savedSettings);
+            
+            // Load active collection
             const lastActiveExists = parsedCollections.find(c => c.id === settings.lastActiveCollectionId);
             if (lastActiveExists) {
               setActiveCollectionId(settings.lastActiveCollectionId);
             } else if (parsedCollections.length > 0) {
               setActiveCollectionId(parsedCollections[0].id);
+            }
+            
+            // Load theme
+            if (settings.theme) {
+              setTheme(settings.theme);
             }
           } else if (parsedCollections.length > 0) {
             setActiveCollectionId(parsedCollections[0].id);
@@ -160,19 +170,30 @@ export function App() {
     }
   }, [collections]);
 
-  // Save active collection setting
+  // Save app settings (active collection and theme)
   useEffect(() => {
     if (activeCollectionId) {
       try {
         const settings: AppSettings = {
           lastActiveCollectionId: activeCollectionId,
+          theme: theme,
         };
         localStorage.setItem("app-settings", JSON.stringify(settings));
       } catch (error) {
         console.error("Failed to save app settings:", error);
       }
     }
-  }, [activeCollectionId]);
+  }, [activeCollectionId, theme]);
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  // Theme toggle function
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+  };
 
   const addCounter = () => {
     if (newLabel.trim() && activeCollectionId) {
@@ -280,6 +301,7 @@ export function App() {
           />
         </div>
         <div className="header-buttons">
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
           <button
             type="button"
             className="add-counter-button"
