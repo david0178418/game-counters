@@ -43,6 +43,27 @@ export function App() {
   const activeCollection = collections.find(c => c.id === activeCollectionId);
   const counters = activeCollection?.counters || [];
 
+  // Helper function to create default player counters
+  const createDefaultCounters = (): CounterData[] => {
+    const now = Date.now();
+    return [
+      {
+        id: (now + 1).toString(),
+        label: "Player 1",
+        value: 20,
+        initialValue: 20,
+        rotation: 0,
+      },
+      {
+        id: (now + 2).toString(),
+        label: "Player 2",
+        value: 20,
+        initialValue: 20,
+        rotation: 180,
+      },
+    ];
+  };
+
   // Collection utility functions
   const createCollection = (name: string, initialCounters: CounterData[] = []): Collection => {
     const now = Date.now();
@@ -153,16 +174,18 @@ export function App() {
             console.log("Migrated counters to collections format");
           }
         } else {
-          // Create default collection for new users
-          const defaultCollection = createCollection("My Counters");
+          // Create default collection for new users with player counters
+          const defaultCounters = createDefaultCounters();
+          const defaultCollection = createCollection("My Counters", defaultCounters);
           setCollections([defaultCollection]);
           setActiveCollectionId(defaultCollection.id);
         }
       }
     } catch (error) {
       console.error("Failed to load collections:", error);
-      // Fallback: create default collection
-      const defaultCollection = createCollection("My Counters");
+      // Fallback: create default collection with player counters
+      const defaultCounters = createDefaultCounters();
+      const defaultCollection = createCollection("My Counters", defaultCounters);
       setCollections([defaultCollection]);
       setActiveCollectionId(defaultCollection.id);
     } finally {
