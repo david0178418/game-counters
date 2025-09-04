@@ -1219,12 +1219,13 @@ body {
 }
 
 .app.maximized .counter {
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 24px;
   transform: none;
   transition: transform 0.2s, box-shadow 0.2s;
   width: 280px;
-  height: 240px;
+  height: 260px;
+  overflow: hidden;
 }
 
 .app.maximized .counter:hover {
@@ -1233,18 +1234,18 @@ body {
 }
 
 .app.maximized .counter-value {
-  font-size: 5rem;
-  margin: 1.5rem 0;
+  font-size: 4rem;
+  margin: 0.5rem 0;
 }
 
 .app.maximized .counter-button {
-  min-height: 70px;
-  font-size: 2rem;
+  min-height: 60px;
+  font-size: 1.8rem;
 }
 
 .app.maximized .counter-reset {
-  min-height: 56px;
-  font-size: 1rem;
+  min-height: 48px;
+  font-size: 0.9rem;
 }
 
 /* Fixed size handles rotation in maximized view */
@@ -1308,25 +1309,26 @@ body {
   }
 
   .app.maximized .counter {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
     width: 100%;
     max-width: 280px;
-    height: 240px;
+    height: 260px;
     margin: 0 auto;
+    overflow: hidden;
   }
 
   .app.maximized .counter-value {
-    font-size: 4rem;
+    font-size: 3.5rem;
   }
 
   .app.maximized .counter-button {
-    min-height: 64px;
-    font-size: 1.8rem;
+    min-height: 56px;
+    font-size: 1.6rem;
   }
 
   .app.maximized .counter-reset {
-    min-height: 52px;
-    font-size: 0.9rem;
+    min-height: 44px;
+    font-size: 0.85rem;
   }
 
 }
