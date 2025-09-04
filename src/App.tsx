@@ -503,6 +503,7 @@ export function App() {
             initialValue={counter.initialValue}
             maxValue={counter.maxValue}
             rotation={counter.rotation || 0}
+            isMaximized={isMaximized}
             onRemove={removeCounter}
             onUpdate={updateCounter}
             onRotate={rotateCounter}

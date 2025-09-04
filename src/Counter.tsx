@@ -6,6 +6,7 @@ interface CounterProps {
   initialValue?: number;
   maxValue?: number;
   rotation: number;
+  isMaximized?: boolean;
   onRemove: (id: string) => void;
   onUpdate: (id: string, value: number) => void;
   onRotate: (id: string, rotation: number) => void;
@@ -18,6 +19,7 @@ export function Counter({
   initialValue = 0,
   maxValue,
   rotation,
+  isMaximized = false,
   onRemove,
   onUpdate,
   onRotate,
@@ -58,24 +60,26 @@ export function Counter({
     >
       <div className="counter-header">
         <h3 className="counter-label">{label}</h3>
-        <div className="counter-header-actions">
-          <button
-            type="button"
-            className="counter-rotate"
-            onClick={rotate}
-            aria-label={`Rotate ${label} counter`}
-          >
-            ↻
-          </button>
-          <button
-            type="button"
-            className="counter-remove"
-            onClick={remove}
-            aria-label={`Remove ${label} counter`}
-          >
-            ×
-          </button>
-        </div>
+        {!isMaximized && (
+          <div className="counter-header-actions">
+            <button
+              type="button"
+              className="counter-rotate"
+              onClick={rotate}
+              aria-label={`Rotate ${label} counter`}
+            >
+              ↻
+            </button>
+            <button
+              type="button"
+              className="counter-remove"
+              onClick={remove}
+              aria-label={`Remove ${label} counter`}
+            >
+              ×
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="counter-value-section">

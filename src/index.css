@@ -376,6 +376,11 @@ body {
   flex: 1;
 }
 
+/* Center label when no header actions are present */
+.app.maximized .counter-label {
+  text-align: center;
+}
+
 .counter-remove,
 .counter-rotate {
   background: none;
