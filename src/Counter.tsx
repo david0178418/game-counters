@@ -78,11 +78,12 @@ export function Counter({
         </div>
       </div>
 
-      <div className="counter-value">{value}</div>
-
-      {maxValue && (
-        <div className="counter-max">Max: {maxValue}</div>
-      )}
+      <div className="counter-value-section">
+        <div className="counter-value">{value}</div>
+        {maxValue && (
+          <div className="counter-max-small">/{maxValue}</div>
+        )}
+      </div>
 
       <div className="counter-controls">
         <button

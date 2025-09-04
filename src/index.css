@@ -317,10 +317,11 @@ body {
 
 .counters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, 320px);
   gap: 1.5rem;
   padding-bottom: 2rem;
   overflow-x: hidden;
+  justify-content: center;
 }
 
 .counter {
@@ -331,9 +332,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   position: relative;
   transition: border-color 0.3s, transform 0.3s ease;
+  width: 320px;
+  height: 280px;
+  box-sizing: border-box;
 }
 
 .counter:hover {
@@ -353,6 +358,13 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.counter-value-section {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
 }
 
 .counter-label {
@@ -395,34 +407,23 @@ body {
   transform: scale(1.1) rotate(90deg);
 }
 
-/* Dynamic spacing for rotated counters */
-.counter[data-rotation="90"],
-.counter[data-rotation="270"] {
-  margin: 2rem 0.5rem;
-}
-
-.counter[data-rotation="180"] {
-  margin: 0.5rem;
-}
+/* Fixed size containers prevent overlap - no dynamic spacing needed */
 
 .counter-value {
   font-size: 4rem;
   font-weight: 700;
   color: var(--primary-color);
-  text-align: center;
   line-height: 1;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin: 1rem 0;
   user-select: none;
 }
 
-.counter-max {
-  font-size: 0.9rem;
+.counter-max-small {
+  font-size: 1.5rem;
   color: var(--text-secondary);
-  background: var(--background);
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  font-weight: 400;
+  opacity: 0.7;
+  line-height: 1;
 }
 
 .counter-controls {
@@ -540,10 +541,15 @@ body {
   .counters-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+    justify-content: center;
   }
   
   .counter {
     padding: 1.25rem;
+    width: 100%;
+    max-width: 320px;
+    height: 280px;
+    margin: 0 auto;
   }
   
   .counter-value {
@@ -559,11 +565,7 @@ body {
     flex: none;
   }
   
-  /* Adjust rotation spacing for mobile */
-  .counter[data-rotation="90"],
-  .counter[data-rotation="270"] {
-    margin: 1.5rem 0.25rem;
-  }
+  /* Fixed size handles rotation on mobile */
 }
 
 @media (max-width: 480px) {
@@ -599,8 +601,9 @@ body {
   }
   
   .counters-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, 320px);
     gap: 2rem;
+    justify-content: center;
   }
 }
 
@@ -1202,18 +1205,21 @@ body {
   min-height: 100vh;
   padding: 1rem;
   margin: 0;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, 280px);
   gap: 1rem;
   align-content: start;
   padding-bottom: 2rem;
   overflow-x: hidden;
+  justify-content: center;
 }
 
 .app.maximized .counter {
-  padding: 2rem 1.5rem;
+  padding: 1.5rem;
   border-radius: 24px;
   transform: none;
   transition: transform 0.2s, box-shadow 0.2s;
+  width: 280px;
+  height: 240px;
 }
 
 .app.maximized .counter:hover {
@@ -1236,11 +1242,7 @@ body {
   font-size: 1rem;
 }
 
-/* Maximized view rotation spacing */
-.app.maximized .counter[data-rotation="90"],
-.app.maximized .counter[data-rotation="270"] {
-  margin: 1.5rem 0.5rem;
-}
+/* Fixed size handles rotation in maximized view */
 
 @media (max-width: 768px) {
   .header-main {
@@ -1297,10 +1299,15 @@ body {
     padding: 0.75rem;
     gap: 0.75rem;
     padding-bottom: 1.5rem;
+    justify-content: center;
   }
 
   .app.maximized .counter {
     padding: 1.5rem 1rem;
+    width: 100%;
+    max-width: 280px;
+    height: 240px;
+    margin: 0 auto;
   }
 
   .app.maximized .counter-value {
