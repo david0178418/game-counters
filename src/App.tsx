@@ -11,6 +11,7 @@ interface CounterData {
   value: number;
   initialValue: number;
   maxValue?: number;
+  rotation: number;
 }
 
 interface Collection {
@@ -76,6 +77,7 @@ export function App() {
     return createCollection(newName, sourceCollection.counters.map(counter => ({
       ...counter,
       id: Date.now() + Math.random().toString(),
+      rotation: counter.rotation || 0,
     })));
   };
 
@@ -86,7 +88,8 @@ export function App() {
       typeof data.label === "string" &&
       typeof data.value === "number" &&
       typeof data.initialValue === "number" &&
-      (data.maxValue === undefined || typeof data.maxValue === "number")
+      (data.maxValue === undefined || typeof data.maxValue === "number") &&
+      typeof data.rotation === "number"
     );
   };
 
@@ -134,7 +137,11 @@ export function App() {
         if (oldCounters) {
           const parsed = JSON.parse(oldCounters);
           if (Array.isArray(parsed)) {
-            const validCounters = parsed.filter(isValidCounterData);
+            const migratedCounters = parsed.map(counter => ({
+              ...counter,
+              rotation: counter.rotation || 0
+            }));
+            const validCounters = migratedCounters.filter(isValidCounterData);
             const defaultCollection = createCollection("My Counters", validCounters);
             
             setCollections([defaultCollection]);
@@ -262,6 +269,7 @@ export function App() {
         value: defaultVal,
         initialValue: defaultVal,
         maxValue: maxVal,
+        rotation: 0,
       };
       
       const updatedCounters = [...counters, newCounter];
@@ -282,6 +290,13 @@ export function App() {
   const updateCounter = (id: string, value: number) => {
     const updatedCounters = counters.map((counter) =>
       counter.id === id ? { ...counter, value } : counter
+    );
+    updateActiveCollection(updatedCounters);
+  };
+
+  const rotateCounter = (id: string, rotation: number) => {
+    const updatedCounters = counters.map((counter) =>
+      counter.id === id ? { ...counter, rotation } : counter
     );
     updateActiveCollection(updatedCounters);
   };
@@ -487,8 +502,10 @@ export function App() {
             value={counter.value}
             initialValue={counter.initialValue}
             maxValue={counter.maxValue}
+            rotation={counter.rotation || 0}
             onRemove={removeCounter}
             onUpdate={updateCounter}
+            onRotate={rotateCounter}
           />
         ))}
       </div>

@@ -52,6 +52,7 @@ body {
   color: var(--text-primary);
   padding: 0;
   overscroll-behavior: none;
+  overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -60,6 +61,7 @@ body {
   margin: 0;
   padding: 1rem;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app-header {
@@ -318,6 +320,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   padding-bottom: 2rem;
+  overflow-x: hidden;
 }
 
 .counter {
@@ -330,7 +333,7 @@ body {
   align-items: center;
   gap: 1rem;
   position: relative;
-  transition: border-color 0.3s, transform 0.2s;
+  transition: border-color 0.3s, transform 0.3s ease;
 }
 
 .counter:hover {
@@ -346,6 +349,12 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.counter-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .counter-label {
   font-size: 1.25rem;
   font-weight: 600;
@@ -355,7 +364,8 @@ body {
   flex: 1;
 }
 
-.counter-remove {
+.counter-remove,
+.counter-rotate {
   background: none;
   border: none;
   color: var(--text-secondary);
@@ -377,6 +387,22 @@ body {
   background: var(--danger);
   color: white;
   transform: scale(1.1);
+}
+
+.counter-rotate:hover {
+  background: var(--primary-color);
+  color: var(--background);
+  transform: scale(1.1) rotate(90deg);
+}
+
+/* Dynamic spacing for rotated counters */
+.counter[data-rotation="90"],
+.counter[data-rotation="270"] {
+  margin: 2rem 0.5rem;
+}
+
+.counter[data-rotation="180"] {
+  margin: 0.5rem;
 }
 
 .counter-value {
@@ -531,6 +557,12 @@ body {
   .confirm-button,
   .cancel-button {
     flex: none;
+  }
+  
+  /* Adjust rotation spacing for mobile */
+  .counter[data-rotation="90"],
+  .counter[data-rotation="270"] {
+    margin: 1.5rem 0.25rem;
   }
 }
 
@@ -1174,6 +1206,7 @@ body {
   gap: 1rem;
   align-content: start;
   padding-bottom: 2rem;
+  overflow-x: hidden;
 }
 
 .app.maximized .counter {
@@ -1201,6 +1234,12 @@ body {
 .app.maximized .counter-reset {
   min-height: 56px;
   font-size: 1rem;
+}
+
+/* Maximized view rotation spacing */
+.app.maximized .counter[data-rotation="90"],
+.app.maximized .counter[data-rotation="270"] {
+  margin: 1.5rem 0.5rem;
 }
 
 @media (max-width: 768px) {
