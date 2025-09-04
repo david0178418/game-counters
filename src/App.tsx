@@ -321,7 +321,10 @@ export function App() {
     
     // If we deleted the active collection, switch to the first available
     if (collectionId === activeCollectionId) {
-      setActiveCollectionId(updatedCollections[0].id);
+      const firstCollection = updatedCollections[0];
+      if (firstCollection) {
+        setActiveCollectionId(firstCollection.id);
+      }
     }
   };
 
